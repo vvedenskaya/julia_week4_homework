@@ -34,10 +34,23 @@ def body(book: dict) -> str:
 
 
 def chunk_book(book: dict, max_words: int = 60) -> list[str]:
-    # BUG: only the first chunk gets the header.
-    words = f"{header(book)} {body(book)}".split()
-    return [" ".join(words[i : i + max_words]) for i in range(0, len(words), max_words)]
+    header_text = header(book)
+    body_words = body(book).split()
 
+    header_length = len(header_text.split())
+    chunk_size = max_words - header_length
+
+    if chunk_size < 1:
+        raise ValueError("Not enough space for header and body")
+
+    chunks = []
+
+    for i in range(0, len(body_words), chunk_size):
+        part = body_words[i:i + chunk_size]
+        chunk = header_text + " " + " ".join(part)
+        chunks.append(chunk)
+
+    return chunks
 
 if __name__ == "__main__":
     hill_house = next(b for b in SHELF if b["title"] == "The Haunting of Hill House")
