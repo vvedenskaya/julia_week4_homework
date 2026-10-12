@@ -34,10 +34,36 @@ def body(book: dict) -> str:
 
 
 def chunk_book(book: dict, max_words: int = 60) -> list[str]:
-    # BUG: only the first chunk gets the header.
-    words = f"{header(book)} {body(book)}".split()
-    return [" ".join(words[i : i + max_words]) for i in range(0, len(words), max_words)]
+    # The header, e.g. "Shelf 3: The Haunting of Hill House by Shirley Jackson (1959)."
+    head = header(book)
 
+    # How many words is the header?
+    header_size = len(head.split())
+
+    # How many body words fit next to it?
+    words_per_chunk = max_words - header_size
+
+    # Turn the body into a list of single words
+    body_words = body(book).split()
+
+    chunks = []
+    start = 0
+
+    # Keep going until we've used up all the body words
+    while start < len(body_words):
+        # Grab the next group of words
+        group = body_words[start : start + words_per_chunk]
+
+        # Turn the group of words back into a sentence (put a space between each)
+        text = " ".join(group)
+
+        # Put the header in front and save this chunk
+        chunks.append(head + " " + text)
+
+        # Move forward to the next group
+        start = start + words_per_chunk
+
+    return chunks
 
 if __name__ == "__main__":
     hill_house = next(b for b in SHELF if b["title"] == "The Haunting of Hill House")
