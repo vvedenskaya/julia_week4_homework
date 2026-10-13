@@ -13,11 +13,31 @@ Step 1: change ATTEMPTING to True. The fusion tests will start running.
 Step 2: replace the NotImplementedError with your code.
 """
 
-ATTEMPTING = False
+ATTEMPTING = True
 
 
 def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
-    raise NotImplementedError("Write Reciprocal Rank Fusion here")
+    # A dictionary to hold each doc's total score, e.g. {"B05": 0.0325, ...}
+    scores = {}
+
+    # Go through each list (vector, then bm25, ...)
+    for ranking in rankings:
+
+        # Go through the docs in this list. rank starts at 1, not 0.
+        for rank, doc in enumerate(ranking, start=1):
+
+            # First time we see this doc? Start its score at 0.
+            if doc not in scores:
+                scores[doc] = 0
+
+            # Add this list's points
+            scores[doc] = scores[doc] + 1 / (k + rank)
+
+    # Sort the doc ids by score, highest first
+    return sorted(scores, key=lambda doc: scores[doc], reverse=True)
+        
+    
+    
 
 
 if __name__ == "__main__":
